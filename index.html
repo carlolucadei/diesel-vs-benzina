@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diesel vs Benzina — Calcolatore costi pendolari</title>
+<meta name="description" content="Confronta il costo del carburante tra un'auto diesel e una a benzina per il tragitto casa-lavoro.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="stripe-strip" aria-hidden="true"></div>
+
+  <header class="hero">
+    <p class="eyebrow">Tragitto casa &rarr; lavoro</p>
+    <h1>DIESEL <span class="vs">vs</span> BENZINA</h1>
+    <p class="lead">Inserisci i dati delle due auto e la distanza del tuo tragitto: ti diciamo quale motorizzazione costa davvero meno al distributore.</p>
+  </header>
+
+  <main>
+    <section class="input-grid" aria-label="Dati di calcolo">
+      <form id="calc-form" novalidate>
+
+        <div class="fuel-card diesel-card">
+          <h2><span class="dot" aria-hidden="true"></span>Auto diesel</h2>
+          <label for="diesel-consumo">Consumo medio (km /litro)
+            <input type="number" id="diesel-consumo" name="diesel-consumo" min="0.1" step="0.1" placeholder="es. 18" required>
+          </label>
+          <label for="diesel-costo">Costo gasolio (&euro; /litro)
+            <input type="number" id="diesel-costo" name="diesel-costo" min="0.01" step="0.001" placeholder="es. 1.650" required>
+          </label>
+        </div>
+
+        <div class="fuel-card benzina-card">
+          <h2><span class="dot" aria-hidden="true"></span>Auto a benzina</h2>
+          <label for="benzina-consumo">Consumo medio (km /litro)
+            <input type="number" id="benzina-consumo" name="benzina-consumo" min="0.1" step="0.1" placeholder="es. 15" required>
+          </label>
+          <label for="benzina-costo">Costo benzina (&euro; /litro)
+            <input type="number" id="benzina-costo" name="benzina-costo" min="0.01" step="0.001" placeholder="es. 1.850" required>
+          </label>
+        </div>
+
+        <div class="trip-card">
+          <h2>Tragitto</h2>
+          <label for="distanza">Distanza casa-lavoro, sola andata (km)
+            <input type="number" id="distanza" name="distanza" min="0.1" step="0.1" placeholder="es. 18" required>
+          </label>
+          <label for="giorni">Giorni lavorativi al mese
+            <input type="number" id="giorni" name="giorni" min="1" max="31" step="1" value="21" required>
+          </label>
+          <button type="submit" class="btn-calc">Calcola confronto</button>
+        </div>
+
+      </form>
+    </section>
+
+    <section id="results" class="results hidden" aria-live="polite">
+
+      <div class="winner-badge" id="winner-badge">
+        <span id="winner-text">&mdash;</span>
+      </div>
+
+      <div class="period-tabs" role="tablist" aria-label="Periodo di confronto">
+        <button type="button" class="tab active" data-period="daily" role="tab" aria-selected="true">Giornaliero (A/R)</button>
+        <button type="button" class="tab" data-period="monthly" role="tab" aria-selected="false">Mensile</button>
+        <button type="button" class="tab" data-period="annual" role="tab" aria-selected="false">Annuale</button>
+      </div>
+
+      <div class="readouts">
+        <div class="readout diesel-readout">
+          <span class="readout-label">Diesel</span>
+          <span class="readout-value" id="diesel-value">&euro; 0,00</span>
+        </div>
+        <div class="readout benzina-readout">
+          <span class="readout-label">Benzina</span>
+          <span class="readout-value" id="benzina-value">&euro; 0,00</span>
+        </div>
+        <div class="readout diff-readout">
+          <span class="readout-label">Differenza</span>
+          <span class="readout-value" id="diff-value">&euro; 0,00</span>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <p class="chart-title">Confronto costi &mdash; <span id="chart-period-label">giornaliero</span></p>
+        <div class="chart" id="bar-chart">
+          <div class="bar-col">
+            <div class="bar-track">
+              <div class="bar diesel-bar" id="diesel-bar"><span class="bar-value" id="diesel-bar-value"></span></div>
+            </div>
+            <span class="bar-label">Diesel</span>
+          </div>
+          <div class="bar-col">
+            <div class="bar-track">
+              <div class="bar benzina-bar" id="benzina-bar"><span class="bar-value" id="benzina-bar-value"></span></div>
+            </div>
+            <span class="bar-label">Benzina</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <footer>
+    <p>Stima puramente indicativa basata sui valori inseriti (non considera manutenzione, bollo, assicurazione o svalutazione). Nessun dato viene salvato o inviato altrove: tutto il calcolo avviene nel tuo browser.</p>
+  </footer>
+
+<script src="script.js"></script>
+</body>
+</html>
