@@ -55,15 +55,34 @@ diesel-vs-benzina/
 
 Nessuna dipendenza da installare, nessun framework, nessun processo di build. L'unica risorsa esterna è il caricamento dei font (Oswald, IBM Plex Sans, IBM Plex Mono) da Google Fonts; se necessario un ambiente completamente offline, è sufficiente rimuovere i tag `<link>` dei font nell'`<head>` di `index.html`: verranno usati i font di sistema come fallback.
 
-## Pubblicazione su GitHub Pages
+## Come usarlo
 
-1. Crea un repository GitHub chiamato **`diesel-vs-benzina`** e carica i quattro file di questo progetto nella root (o in `/docs`, a scelta).
-2. Vai su **Settings → Pages** del repository.
-3. In **Source** seleziona il branch (es. `main`) e la cartella (`/root` o `/docs`).
-4. Salva: dopo qualche minuto la pagina sarà raggiungibile all'indirizzo indicato da GitHub (in genere `https://<tuo-utente>.github.io/diesel-vs-benzina/`).
+Dato che ho attivato **GitHub Pages**, se vuoi puoi accedere al simulatore direttamente online all'indirizzo: https://carlolucadei.github.io/diesel-vs-benzina/.
 
 Non serve alcuna configurazione aggiuntiva: essendo l'app completamente stand-alone, funziona così com'è su GitHub Pages.
 
 ## Licenza
 
-Puoi usare, modificare e distribuire liberamente questo progetto.
+MIT License
+
+Copyright (c) 2026 carlolucadei
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Licenza MIT: puoi usare, copiare, modificare, distribuire e pubblicare questo codice liberamente, anche per scopi commerciali, senza chiedere permesso. L'unica condizione è mantenere il testo della licenza nelle copie distribuite.
