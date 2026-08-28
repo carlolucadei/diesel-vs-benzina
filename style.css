@@ -24,6 +24,8 @@
   --diesel-dim: #4a3a1f;
   --benzina: #3fae68;
   --benzina-dim: #1f3a2a;
+  --gpl: #3fa0c9;
+  --gpl-dim: #1f333a;
   --hazard: #f2c230;
   --radius: 10px;
 }
@@ -107,13 +109,19 @@ main{
 
 /* ---------- form ---------- */
 .input-grid form{
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.fuel-row{
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 18px;
 }
 
 @media (max-width: 820px){
-  .input-grid form{ grid-template-columns: 1fr; }
+  .fuel-row{ grid-template-columns: 1fr; }
 }
 
 .fuel-card, .trip-card{
@@ -122,11 +130,18 @@ main{
   border-radius: var(--radius);
   padding: 22px;
   border-top: 4px solid var(--line);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .diesel-card{ border-top-color: var(--diesel); }
 .benzina-card{ border-top-color: var(--benzina); }
+.gpl-card{ border-top-color: var(--gpl); transition: opacity 0.2s ease, border-color 0.15s ease, box-shadow 0.15s ease; }
 .trip-card{ border-top-color: var(--hazard); display: flex; flex-direction: column; }
+
+.diesel-card:hover{ border-color: var(--diesel); box-shadow: 0 0 0 3px var(--diesel-dim); }
+.benzina-card:hover{ border-color: var(--benzina); box-shadow: 0 0 0 3px var(--benzina-dim); }
+.gpl-card:not(.is-disabled):hover{ border-color: var(--gpl); box-shadow: 0 0 0 3px var(--gpl-dim); }
+.trip-card:hover{ border-color: var(--hazard); box-shadow: 0 0 0 3px rgba(242, 194, 48, 0.18); }
 
 .fuel-card h2, .trip-card h2{
   font-family: 'Oswald', sans-serif;
@@ -149,6 +164,27 @@ main{
 
 .diesel-card .dot{ background: var(--diesel); box-shadow: 0 0 0 3px var(--diesel-dim); }
 .benzina-card .dot{ background: var(--benzina); box-shadow: 0 0 0 3px var(--benzina-dim); }
+.gpl-card .dot{ background: var(--gpl); box-shadow: 0 0 0 3px var(--gpl-dim); }
+
+.gpl-hint{
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin: -8px 0 14px;
+}
+
+.gpl-card.is-disabled{ opacity: 0.55; }
+
+.gpl-note{
+  display: none;
+  font-size: 0.78rem;
+  color: var(--gpl);
+  margin: -8px 0 14px;
+}
+
+.gpl-card.is-disabled .gpl-note{ display: block; }
+.gpl-card.is-disabled .gpl-hint{ display: none; }
+
+input[type="number"]:disabled{ cursor: not-allowed; }
 
 label{
   display: block;
@@ -175,6 +211,29 @@ input[type="number"]{
 
 input[type="number"]:focus{
   outline: none;
+  border-color: var(--hazard);
+  box-shadow: 0 0 0 3px rgba(242, 194, 48, 0.18);
+}
+
+.diesel-card input[type="number"]:hover,
+.diesel-card input[type="number"]:focus{
+  border-color: var(--diesel);
+  box-shadow: 0 0 0 3px rgba(232, 163, 61, 0.18);
+}
+
+.benzina-card input[type="number"]:hover,
+.benzina-card input[type="number"]:focus{
+  border-color: var(--benzina);
+  box-shadow: 0 0 0 3px rgba(63, 174, 104, 0.18);
+}
+
+.gpl-card:not(.is-disabled) input[type="number"]:hover,
+.gpl-card:not(.is-disabled) input[type="number"]:focus{
+  border-color: var(--gpl);
+  box-shadow: 0 0 0 3px rgba(63, 160, 201, 0.18);
+}
+
+.trip-card input[type="number"]:hover{
   border-color: var(--hazard);
   box-shadow: 0 0 0 3px rgba(242, 194, 48, 0.18);
 }
@@ -212,6 +271,8 @@ input[type="number"]::-webkit-inner-spin-button{
 }
 
 .results.hidden{ display: none; }
+
+.hidden{ display: none !important; }
 
 @keyframes rise{
   from{ opacity: 0; transform: translateY(10px); }
@@ -284,7 +345,7 @@ input[type="number"]::-webkit-inner-spin-button{
 /* ---------- digital readouts ---------- */
 .readouts{
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 16px;
   margin-bottom: 40px;
 }
@@ -321,6 +382,7 @@ input[type="number"]::-webkit-inner-spin-button{
 
 .diesel-readout .readout-value{ color: var(--diesel); text-shadow: 0 0 18px rgba(232,163,61,0.35); }
 .benzina-readout .readout-value{ color: var(--benzina); text-shadow: 0 0 18px rgba(63,174,104,0.35); }
+.gpl-readout .readout-value{ color: var(--gpl); text-shadow: 0 0 18px rgba(63,160,201,0.35); }
 .diff-readout .readout-value{ color: var(--hazard); text-shadow: 0 0 18px rgba(242,194,48,0.35); }
 
 /* ---------- bar chart ---------- */
@@ -345,7 +407,8 @@ input[type="number"]::-webkit-inner-spin-button{
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: 64px;
+  gap: 48px;
+  flex-wrap: wrap;
   height: 220px;
 }
 
@@ -375,6 +438,7 @@ input[type="number"]::-webkit-inner-spin-button{
 
 .diesel-bar{ background: linear-gradient(180deg, #ffcf85, var(--diesel)); }
 .benzina-bar{ background: linear-gradient(180deg, #8fe0ac, var(--benzina)); }
+.gpl-bar{ background: linear-gradient(180deg, #8fd4ec, var(--gpl)); }
 
 .bar-value{
   display: block;

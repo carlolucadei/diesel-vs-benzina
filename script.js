@@ -9,13 +9,43 @@
 
   const dieselValueEl = document.getElementById('diesel-value');
   const benzinaValueEl = document.getElementById('benzina-value');
+  const gplValueEl = document.getElementById('gpl-value');
   const diffValueEl = document.getElementById('diff-value');
 
   const dieselBar = document.getElementById('diesel-bar');
   const benzinaBar = document.getElementById('benzina-bar');
+  const gplBar = document.getElementById('gpl-bar');
   const dieselBarValue = document.getElementById('diesel-bar-value');
   const benzinaBarValue = document.getElementById('benzina-bar-value');
+  const gplBarValue = document.getElementById('gpl-bar-value');
+  const gplBarCol = document.getElementById('gpl-bar-col');
+  const gplReadout = document.getElementById('gpl-readout');
   const chartPeriodLabel = document.getElementById('chart-period-label');
+
+  const gplCard = document.getElementById('gpl-card');
+  const gplCostoInput = document.getElementById('gpl-costo');
+  const benzinaConsumoInput = document.getElementById('benzina-consumo');
+  const benzinaCostoInput = document.getElementById('benzina-costo');
+
+  const GPL_EFFICIENCY = 0.85; // una GPL percorre l'85% dei km/litro rispetto alla benzina
+
+  function hasBenzinaData() {
+    return benzinaConsumoInput.value.trim() !== '' && benzinaCostoInput.value.trim() !== '';
+  }
+
+  function toggleGplCard() {
+    const enabled = hasBenzinaData();
+    gplCard.classList.toggle('is-disabled', !enabled);
+    gplCostoInput.disabled = !enabled;
+    if (!enabled) {
+      gplCostoInput.value = '';
+    }
+  }
+
+  [benzinaConsumoInput, benzinaCostoInput].forEach(input => {
+    input.addEventListener('input', toggleGplCard);
+  });
+  toggleGplCard();
 
   const tabs = Array.from(document.querySelectorAll('.tab'));
 
@@ -35,7 +65,7 @@
   let currentData = null; // { daily: {diesel, benzina}, monthly: {...}, annual: {...} }
   let currentPeriod = 'daily';
 
-  function computeCosts({ dieselConsumo, dieselCosto, benzinaConsumo, benzinaCosto, distanza, giorni }) {
+  function computeCosts({ dieselConsumo, dieselCosto, benzinaConsumo, benzinaCosto, gplCosto, distanza, giorni }) {
     const dailyKm = distanza * 2; // andata + ritorno
 
     // consumo espresso in km/litro: costo per km = prezzo al litro / km percorribili con un litro
@@ -51,43 +81,66 @@
     const annualDiesel = monthlyDiesel * 12;
     const annualBenzina = monthlyBenzina * 12;
 
-    return {
+    const result = {
       daily: { diesel: dailyDiesel, benzina: dailyBenzina },
       monthly: { diesel: monthlyDiesel, benzina: monthlyBenzina },
       annual: { diesel: annualDiesel, benzina: annualBenzina }
     };
+
+    if (Number.isFinite(gplCosto)) {
+      // Costo annuale GPL = prezzo GPL * (km totali / (consumo benzina * 0.85))
+      const kmTotaliAnno = dailyKm * giorni * 12;
+      const annualGpl = gplCosto * (kmTotaliAnno / (benzinaConsumo * GPL_EFFICIENCY));
+      const monthlyGpl = annualGpl / 12;
+      const dailyGpl = monthlyGpl / giorni;
+
+      result.daily.gpl = dailyGpl;
+      result.monthly.gpl = monthlyGpl;
+      result.annual.gpl = annualGpl;
+    }
+
+    return result;
   }
+
+  const FUEL_LABELS = {
+    diesel: 'Il diesel',
+    benzina: 'La benzina',
+    gpl: 'Il GPL'
+  };
 
   function updateWinnerBadge(data) {
     // Winner is decided on the annual figures, the most representative horizon.
-    const { diesel, benzina } = data.annual;
-    const delta = Math.abs(diesel - benzina);
+    const annual = data.annual;
+    const fuels = Object.keys(FUEL_LABELS).filter(key => key in annual);
+
+    const cheapest = fuels.reduce((best, key) => annual[key] < annual[best] ? key : best, fuels[0]);
+    const priciest = fuels.reduce((worst, key) => annual[key] > annual[worst] ? key : worst, fuels[0]);
+    const delta = annual[priciest] - annual[cheapest];
 
     winnerBadge.classList.remove('tie');
 
-    if (Math.abs(diesel - benzina) < 0.01) {
+    if (delta < 0.01) {
       winnerBadge.classList.add('tie');
-      winnerText.textContent = 'Diesel e benzina costano praticamente uguale';
+      winnerText.textContent = 'Tutte le motorizzazioni costano praticamente uguale';
       return;
     }
 
-    if (diesel < benzina) {
-      winnerText.textContent = `Il diesel conviene — risparmi ${currency.format(delta)} all'anno`;
-    } else {
-      winnerText.textContent = `La benzina conviene — risparmi ${currency.format(delta)} all'anno`;
-    }
+    winnerText.textContent = `${FUEL_LABELS[cheapest]} conviene — risparmi ${currency.format(delta)} all'anno`;
   }
 
   function renderPeriod(period) {
     if (!currentData) return;
     currentPeriod = period;
 
-    const { diesel, benzina } = currentData[period];
-    const maxVal = Math.max(diesel, benzina, 0.01);
+    const { diesel, benzina, gpl } = currentData[period];
+    const hasGpl = gpl !== undefined;
+    const maxVal = Math.max(diesel, benzina, hasGpl ? gpl : 0, 0.01);
 
     dieselValueEl.textContent = currency.format(diesel);
     benzinaValueEl.textContent = currency.format(benzina);
-    diffValueEl.textContent = currency.format(Math.abs(diesel - benzina));
+
+    const values = [diesel, benzina].concat(hasGpl ? [gpl] : []);
+    diffValueEl.textContent = currency.format(Math.max(...values) - Math.min(...values));
 
     chartPeriodLabel.textContent = PERIOD_LABELS[period];
 
@@ -100,6 +153,15 @@
 
     dieselBarValue.textContent = currency.format(diesel);
     benzinaBarValue.textContent = currency.format(benzina);
+
+    gplReadout.classList.toggle('hidden', !hasGpl);
+    gplBarCol.classList.toggle('hidden', !hasGpl);
+
+    if (hasGpl) {
+      gplValueEl.textContent = currency.format(gpl);
+      gplBarValue.textContent = currency.format(gpl);
+      gplBar.style.height = Math.max((gpl / maxVal) * 100, 4) + '%';
+    }
 
     tabs.forEach(tab => {
       const isActive = tab.dataset.period === period;
@@ -125,7 +187,16 @@
       return;
     }
 
-    currentData = computeCosts(values);
+    // GPL è opzionale: la sua sezione compare solo se sono presenti i dati benzina.
+    let gplCosto = NaN;
+    if (hasBenzinaData() && gplCostoInput.value.trim() !== '') {
+      gplCosto = parseFloat(gplCostoInput.value);
+      if (Number.isNaN(gplCosto) || gplCosto < 0) {
+        return;
+      }
+    }
+
+    currentData = computeCosts({ ...values, gplCosto });
     updateWinnerBadge(currentData);
 
     resultsSection.classList.remove('hidden');
